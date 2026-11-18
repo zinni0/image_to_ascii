@@ -136,7 +136,7 @@ def main():
     else:
         out = to_text(cells)
 
-    with open(args.out, "w", encoding="utf-8") as f:
+    with open(args.output, "w", encoding="utf-8") as f:
         f.write(out)
 
     print(f"finished: {args.output} ({resized.size[0]}x{resized.size[1]} chars)")
