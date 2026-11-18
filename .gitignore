@@ -1,0 +1,30 @@
+# Python Bytecode & Caches
+__pycache__/
+*.py[oc]
+*.so
+*.egg-info/
+
+# Build & Distribution
+build/
+dist/
+wheels/
+
+# Virtuelle Umgebungen & lokale Geheimnisse
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Test-, Coverage- & Linter-Caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# IDEs & Betriebssysteme
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
