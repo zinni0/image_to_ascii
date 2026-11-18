@@ -7,7 +7,9 @@ authors = [
     { name = "zinni0", email = "142218244+zinni0@users.noreply.github.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pillow>=13.0.0",
+]
 
 [project.scripts]
 image-to-ascii = "image_to_ascii:main"
