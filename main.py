@@ -116,6 +116,7 @@ def main():
         help="for dark backgrounds: brighter spots -> more chars",
     )
     p.add_argument("--background", default=None, help="CSS-Color for HTML-Background")
+    p.add_argument("--bright-is-dicht", action="store_true", help="ToDo")
 
     args = p.parse_args()
 
@@ -129,7 +130,7 @@ def main():
         sys.exit(1)
 
     resized = resize(image, args.width)
-    cells = image_to_lines(resized, invert=not args.dark)
+    cells = image_to_lines(resized, invert=not args.bright_is_dicht)
 
     if fmt == "html":
         out = to_html(cells, bg, titel=args.input)
