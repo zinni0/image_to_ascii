@@ -3,6 +3,7 @@ from PIL import Image
 
 from image_to_ascii import AsciiConverter, Cell, ConversionOptions
 from image_to_ascii.converter import brightness
+from image_to_ascii.models import DEFAULT_RAMP
 from image_to_ascii.runs import Run, group_runs
 
 RED = (255, 0, 0)
@@ -24,9 +25,10 @@ def test_resize_height_uses_char_aspect():
 def test_grid_inverted_and_not():
     img = Image.new("RGB", (2, 1))
     img.putpixel((1, 0), (255, 255, 255))
-    inv = AsciiConverter(ConversionOptions(invert=True)).to_grid(img)
+    legacy = {"background_threshold": 1.0, "contrast": False}
+    inv = AsciiConverter(ConversionOptions(invert=True, **legacy)).to_grid(img)
     assert [c.char for c in inv[0]] == ["@", " "]
-    plain = AsciiConverter(ConversionOptions(invert=False)).to_grid(img)
+    plain = AsciiConverter(ConversionOptions(invert=False, **legacy)).to_grid(img)
     assert [c.char for c in plain[0]] == [" ", "@"]
     assert inv[0][1].color == (255, 255, 255)
 
@@ -81,3 +83,58 @@ def test_invalid_width_rejected(width):
 def test_invalid_char_aspect_rejected():
     with pytest.raises(ValueError):
         ConversionOptions(char_aspect=0)
+
+
+def _row(colors, **options):
+    img = Image.new("RGBA", (len(colors), 1))
+    for x, color in enumerate(colors):
+        img.putpixel((x, 0), color)
+    return AsciiConverter(ConversionOptions(**options)).to_grid(img)[0]
+
+
+def test_transparent_pixel_becomes_space():
+    row = _row([(0, 0, 0, 0), (0, 0, 0, 255)])
+    assert row[0] == Cell(" ", None)
+    assert row[1].char == "@"
+
+
+def test_near_white_becomes_space_and_threshold_one_disables():
+    near_white = (250, 250, 250, 255)
+    assert _row([near_white])[0] == Cell(" ", None)
+    kept = _row([near_white], background_threshold=1.0, contrast=False)[0]
+    assert kept.color == (250, 250, 250)
+
+
+def test_background_flips_with_invert():
+    row = _row([(0, 0, 0, 255), (255, 255, 255, 255)], invert=False)
+    assert row[0] == Cell(" ", None)
+    assert row[1].char == "@"
+
+
+def test_autocontrast_spreads_narrow_gradient():
+    colors = [(v, v, v, 255) for v in range(100, 140)]
+    plain = {c.char for c in _row(colors, contrast=False)}
+    stretched = {c.char for c in _row(colors)}
+    assert len(stretched) > len(plain)
+
+
+def test_gamma_brightens_midtones():
+    gray = [(128, 128, 128, 255)]
+    flat = _row(gray, contrast=False)[0].char
+    bright = _row(gray, contrast=False, gamma=2.0)[0].char
+    assert DEFAULT_RAMP.index(bright) < DEFAULT_RAMP.index(flat)
+
+
+@pytest.mark.parametrize(
+    "options",
+    [
+        {"background_threshold": 1.5},
+        {"background_threshold": -0.1},
+        {"gamma": 0},
+        {"gamma": float("nan")},
+        {"gamma": float("inf")},
+    ],
+)
+def test_invalid_options_raise(options):
+    with pytest.raises(ValueError):
+        ConversionOptions(**options)

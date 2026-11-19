@@ -100,3 +100,45 @@ def test_bad_background(tmp_path, image, capsys):
         main([image, "-o", str(tmp_path / "o.html"), "--background", "red;}"])
     assert exc.value.code == 1
     assert "invalid CSS color" in capsys.readouterr().err
+
+
+def test_background_threshold_and_autocontrast_flags(tmp_path):
+    src = tmp_path / "g.png"
+    Image.new("RGB", (10, 10), (200, 200, 200)).save(src)
+    out = tmp_path / "o.txt"
+    base = [str(src), "-o", str(out), "--width", "4"]
+    main(base)
+    assert out.read_text(encoding="utf-8").strip() != ""
+    main([*base, "--background-threshold", "0.5"])
+    assert out.read_text(encoding="utf-8").strip() == ""
+    main([*base, "--no-autocontrast", "--gamma", "1.5"])
+    assert out.read_text(encoding="utf-8").strip() != ""
+
+
+@pytest.mark.parametrize("flag", ["--background-threshold", "--gamma"])
+def test_invalid_numeric_option_reports_error(tmp_path, image, capsys, flag):
+    value = "2" if flag == "--background-threshold" else "0"
+    with pytest.raises(SystemExit) as exc:
+        main([image, "-o", str(tmp_path / "o.txt"), flag, value])
+    assert exc.value.code == 1
+    assert "error:" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("value", ["nan", "inf"])
+def test_non_finite_gamma_reports_error(tmp_path, image, capsys, value):
+    with pytest.raises(SystemExit) as exc:
+        main([image, "-o", str(tmp_path / "o.txt"), "--gamma", value])
+    assert exc.value.code == 1
+    assert "gamma must be a finite number" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize(
+    ("name", "tag"),
+    [("o.svg", "<title>in.png</title>"), ("o.html", "<title>in.png</title>")],
+)
+def test_title_is_file_name_only(tmp_path, image, name, tag):
+    out = tmp_path / name
+    main([image, "-o", str(out), "--width", "8"])
+    text = out.read_text(encoding="utf-8")
+    assert tag in text
+    assert str(tmp_path) not in text

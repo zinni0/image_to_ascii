@@ -31,3 +31,6 @@ Thumbs.db
 
 # Manual outputs
 output/
+
+# Private local Claude Code instructions (not for GitHub)
+CLAUDE.local.md

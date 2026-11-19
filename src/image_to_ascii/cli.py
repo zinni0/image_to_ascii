@@ -7,7 +7,7 @@ from pathlib import Path
 from PIL import Image, UnidentifiedImageError
 
 from image_to_ascii import AsciiConverter, ConversionOptions
-from image_to_ascii.models import MAX_WIDTH
+from image_to_ascii.models import DEFAULT_BACKGROUND_THRESHOLD, DEFAULT_WIDTH, MAX_WIDTH
 from image_to_ascii.renderers import REGISTRY, format_for_path, get_renderer
 
 DARK_BACKGROUND = "#0B0B0C"
@@ -35,7 +35,28 @@ def build_parser() -> argparse.ArgumentParser:
         help="output format (default: derived from the -o extension)",
     )
     p.add_argument(
-        "--width", type=width_arg, default=100, help="width in chars (default: 100)"
+        "--width",
+        type=width_arg,
+        default=DEFAULT_WIDTH,
+        help=f"width in chars (default: {DEFAULT_WIDTH})",
+    )
+    p.add_argument(
+        "--background-threshold",
+        type=float,
+        default=DEFAULT_BACKGROUND_THRESHOLD,
+        help="luminance 0..1 beyond which pixels become spaces; 1.0 turns it off "
+        f"(default: {DEFAULT_BACKGROUND_THRESHOLD})",
+    )
+    p.add_argument(
+        "--no-autocontrast",
+        action="store_true",
+        help="disable percentile contrast stretching",
+    )
+    p.add_argument(
+        "--gamma",
+        type=float,
+        default=1.0,
+        help="gamma applied after contrast stretching; >1 brightens (default: 1.0)",
     )
     p.add_argument(
         "--dark",
@@ -73,12 +94,18 @@ def renderer_options(fmt: str, args: argparse.Namespace) -> dict:
 
 def run(args: argparse.Namespace) -> None:
     fmt = args.format or format_for_path(args.output)
-    options = ConversionOptions(width=args.width, invert=not args.bright_is_dense)
+    options = ConversionOptions(
+        width=args.width,
+        invert=not args.bright_is_dense,
+        background_threshold=args.background_threshold,
+        contrast=not args.no_autocontrast,
+        gamma=args.gamma,
+    )
     converter = AsciiConverter(options)
     resized = converter.resize(converter.load(args.input))
     grid = converter.to_grid(resized)
     renderer = get_renderer(fmt, **renderer_options(fmt, args))
-    content = renderer.render(grid, title=args.input)
+    content = renderer.render(grid, title=Path(args.input).name)
 
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
