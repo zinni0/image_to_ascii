@@ -1,7 +1,7 @@
 """JSON renderer: rows of [text, "#rrggbb" | null] runs, see schema/."""
 
 import json
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 
 from image_to_ascii.models import CellGrid
 from image_to_ascii.renderers.base import Renderer
@@ -18,7 +18,10 @@ def _run_json(run: Run) -> list:
 
 
 def generator_name() -> str:
-    return f"image-to-ascii {version('image-to-ascii')}"
+    try:
+        return f"image-to-ascii {version('image-to-ascii')}"
+    except PackageNotFoundError:
+        return "image-to-ascii unknown"
 
 
 class JsonRenderer(Renderer):

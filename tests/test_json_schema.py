@@ -1,12 +1,14 @@
 """The JSON renderer output must satisfy schema/ascii-art.v1.schema.json."""
 
 import json
+from importlib.metadata import PackageNotFoundError
 from pathlib import Path
 
 import pytest
 from jsonschema import Draft202012Validator
 
 from image_to_ascii import Cell, get_renderer
+from image_to_ascii.renderers import json_renderer
 
 SCHEMA_PATH = Path(__file__).parent.parent / "schema" / "ascii-art.v1.schema.json"
 
@@ -47,3 +49,11 @@ def test_schema_rejects_bad_documents(validator):
         mutate(bad)
         assert not validator.is_valid(bad)
     assert validator.is_valid({**good, "rows": [[["a", "#010203", 0.5]]]})
+
+
+def test_generator_name_falls_back_when_package_not_installed(monkeypatch):
+    def missing(name):
+        raise PackageNotFoundError(name)
+
+    monkeypatch.setattr(json_renderer, "version", missing)
+    assert json_renderer.generator_name() == "image-to-ascii unknown"
