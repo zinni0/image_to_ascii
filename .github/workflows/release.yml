@@ -2,16 +2,35 @@ name: release
 
 on:
   push:
-    tags: ["v*.*.*"]
-
-permissions:
-  contents: write
+    tags: ["v*"]
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Check tag format and version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Tag $TAG is not of the form vX.Y.Z" >&2
+            exit 1
+          fi
+          project_version=$(sed -n 's/^version = "\(.*\)"$/\1/p' pyproject.toml | head -n 1)
+          if [ "${TAG#v}" != "$project_version" ]; then
+            echo "Tag $TAG does not match pyproject version $project_version" >&2
+            exit 1
+          fi
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      - name: Install dependencies
+        run: uv sync
+      - name: Run tests
+        run: uv run pytest -q
       - name: Create release with schema assets
         env:
           GH_TOKEN: ${{ github.token }}
