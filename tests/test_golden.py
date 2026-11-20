@@ -3,6 +3,7 @@
 Do not update tests/golden/* without explicit approval.
 """
 
+import json
 from pathlib import Path
 
 import pytest
@@ -35,6 +36,14 @@ def test_golden(grid, fmt, options, name):
     rendered = get_renderer(fmt, **options).render(grid, title=TITLE)
     expected = (GOLDEN / name).read_bytes()
     assert rendered.encode("utf-8") == expected
+
+
+def test_golden_json(grid):
+    """The generator version varies, so the golden file holds a placeholder."""
+    rendered = get_renderer("json").render(grid, title=TITLE)
+    generator = json.loads(rendered)["generator"]
+    expected = (GOLDEN / "blue_flower_w80.json").read_text(encoding="utf-8")
+    assert rendered == expected.replace("@GENERATOR@", generator)
 
 
 def test_transparent_flower_has_clean_border(grid):

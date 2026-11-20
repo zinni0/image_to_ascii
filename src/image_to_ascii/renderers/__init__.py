@@ -2,6 +2,7 @@
 
 from image_to_ascii.renderers.base import Renderer
 from image_to_ascii.renderers.html import HtmlRenderer
+from image_to_ascii.renderers.json import JsonRenderer
 from image_to_ascii.renderers.svg import SvgRenderer
 from image_to_ascii.renderers.text import TextRenderer
 
@@ -9,6 +10,7 @@ REGISTRY: dict[str, type[Renderer]] = {
     "txt": TextRenderer,
     "html": HtmlRenderer,
     "svg": SvgRenderer,
+    "json": JsonRenderer,
 }
 
 DEFAULT_FORMAT = "txt"

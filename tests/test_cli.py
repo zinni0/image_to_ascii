@@ -13,12 +13,23 @@ def image(tmp_path):
 
 @pytest.mark.parametrize(
     ("name", "marker"),
-    [("o.svg", "<svg"), ("o.html", "<!doctype html>"), ("o.txt", "%")],
+    [
+        ("o.svg", "<svg"),
+        ("o.html", "<!doctype html>"),
+        ("o.txt", "%"),
+        ("o.json", '"schemaVersion":1'),
+    ],
 )
 def test_format_from_extension(tmp_path, image, name, marker):
     out = tmp_path / name
     main([image, "-o", str(out), "--width", "8"])
     assert marker in out.read_text(encoding="utf-8")
+
+
+def test_format_json_flag_overrides_extension(tmp_path, image):
+    out = tmp_path / "o.txt"
+    main([image, "-o", str(out), "--width", "8", "--format", "json"])
+    assert '"schemaVersion":1' in out.read_text(encoding="utf-8")
 
 
 def test_fragment_and_bright_is_dense(tmp_path, image):
