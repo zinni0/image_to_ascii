@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/zinni0/image_to_ascii/schema/ascii-art.v1.schema.json",
+  "$id": "https://github.com/zinni0/image_to_ascii/releases/latest/download/ascii-art.v1.schema.json",
   "title": "ASCII art",
   "description": "Colored ASCII art as rows of runs. Version 1.",
   "type": "object",

@@ -57,3 +57,11 @@ def test_generator_name_falls_back_when_package_not_installed(monkeypatch):
 
     monkeypatch.setattr(json_renderer, "version", missing)
     assert json_renderer.generator_name() == "image-to-ascii unknown"
+
+
+def test_schema_id_points_to_release_asset():
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    assert schema["$id"] == (
+        "https://github.com/zinni0/image_to_ascii/releases/latest/download/"
+        f"{SCHEMA_PATH.name}"
+    )
