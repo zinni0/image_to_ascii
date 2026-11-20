@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/zinni0/image_to_ascii/schema/ascii-art.v1.schema.json",
+  "title": "ASCII art",
+  "description": "Colored ASCII art as rows of runs. Version 1.",
+  "type": "object",
+  "required": ["schemaVersion", "width", "height", "generator", "rows"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "width": { "type": "integer", "minimum": 0 },
+    "height": { "type": "integer", "minimum": 0 },
+    "generator": { "type": "string", "minLength": 1 },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": { "$ref": "#/$defs/run" }
+      }
+    }
+  },
+  "$defs": {
+    "run": {
+      "description": "[text, color, alpha?]: consecutive characters of one color (null for uncolored).",
+      "type": "array",
+      "prefixItems": [
+        { "type": "string", "minLength": 1 },
+        {
+          "oneOf": [
+            { "type": "string", "pattern": "^#[0-9a-f]{6}$" },
+            { "type": "null" }
+          ]
+        },
+        { "type": "number", "minimum": 0, "maximum": 1 }
+      ],
+      "minItems": 2,
+      "maxItems": 3
+    }
+  }
+}
