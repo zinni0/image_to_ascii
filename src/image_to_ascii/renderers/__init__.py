@@ -2,7 +2,7 @@
 
 from image_to_ascii.renderers.base import Renderer
 from image_to_ascii.renderers.html import HtmlRenderer
-from image_to_ascii.renderers.json import JsonRenderer
+from image_to_ascii.renderers.json_renderer import JsonRenderer
 from image_to_ascii.renderers.svg import SvgRenderer
 from image_to_ascii.renderers.text import TextRenderer
 
