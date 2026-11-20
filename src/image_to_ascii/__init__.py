@@ -1,4 +1,4 @@
-"""Convert images to ASCII art as text, HTML or SVG."""
+"""Convert images to ASCII art as text, HTML, SVG or JSON."""
 
 from image_to_ascii.converter import AsciiConverter
 from image_to_ascii.models import Cell, CellGrid, ConversionOptions
