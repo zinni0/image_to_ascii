@@ -138,3 +138,18 @@ def test_gamma_brightens_midtones():
 def test_invalid_options_raise(options):
     with pytest.raises(ValueError):
         ConversionOptions(**options)
+
+
+def test_cell_alpha_per_pixel():
+    row = _row([(0, 0, 0, 255), (0, 0, 0, 200), (0, 0, 0, 0)])
+    assert [cell.alpha for cell in row] == [1.0, 0.78, 1.0]
+    assert row[2] == Cell(" ", None)
+
+
+def test_group_runs_alpha_only_splits_when_requested():
+    line = [Cell("a", RED, 1.0), Cell("b", RED, 0.5), Cell("c", RED, 0.5)]
+    assert group_runs(line) == [Run("abc", RED)]
+    assert group_runs(line, with_alpha=True) == [
+        Run("a", RED, 1.0),
+        Run("bc", RED, 0.5),
+    ]
