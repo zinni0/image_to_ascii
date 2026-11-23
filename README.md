@@ -8,6 +8,12 @@ uv run image-to-ascii blue_flower.png -o output/out.json --width 150
 
 The format follows the `-o` extension (`.svg`, `.html`, `.json`, else text) unless `--format` is given.
 
+## Character ramp and aspect
+
+- `--ramp STR` sets the characters, ordered sparse to dense (default: `" .:-=+*#%@"`).
+- `--ramp-preset {blocks,classic,minimal}` selects a named ramp. It cannot be combined with `--ramp`.
+- `--char-aspect FLOAT` (> 0, default 0.52) is the cell width/height ratio used to scale the output height.
+
 ## JSON format
 
 `--format json` writes a document that validates against [`schema/ascii-art.v1.schema.json`](schema/ascii-art.v1.schema.json):

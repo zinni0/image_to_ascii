@@ -3,7 +3,12 @@
 import math
 from dataclasses import dataclass
 
-DEFAULT_RAMP = " .:-=+*#%@"
+RAMP_PRESETS = {
+    "classic": " .:-=+*#%@",
+    "blocks": " ░▒▓█",
+    "minimal": " .:#",
+}
+DEFAULT_RAMP = RAMP_PRESETS["classic"]
 DEFAULT_CHAR_ASPECT = 0.52
 DEFAULT_WIDTH = 200
 DEFAULT_BACKGROUND_THRESHOLD = 0.94
@@ -48,8 +53,10 @@ class ConversionOptions:
     def __post_init__(self) -> None:
         if not 1 <= self.width <= MAX_WIDTH:
             raise ValueError(f"width must be between 1 and {MAX_WIDTH}")
-        if self.char_aspect <= 0:
-            raise ValueError("char_aspect must be positive")
+        if not self.ramp:
+            raise ValueError("ramp must not be empty")
+        if not math.isfinite(self.char_aspect) or self.char_aspect <= 0:
+            raise ValueError("char_aspect must be a finite number greater than 0")
         if not 0.0 <= self.background_threshold <= 1.0:
             raise ValueError("background_threshold must be between 0 and 1")
         if not math.isfinite(self.gamma) or self.gamma <= 0:

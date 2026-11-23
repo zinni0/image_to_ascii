@@ -153,3 +153,53 @@ def test_title_is_file_name_only(tmp_path, image, name, tag):
     text = out.read_text(encoding="utf-8")
     assert tag in text
     assert str(tmp_path) not in text
+
+
+def _run_txt(tmp_path, image, *extra):
+    out = tmp_path / "o.txt"
+    main([image, "-o", str(out), "--width", "8", *extra])
+    return out.read_text(encoding="utf-8")
+
+
+def test_custom_ramp(tmp_path, image):
+    text = _run_txt(tmp_path, image, "--ramp", "ab")
+    assert set(text.strip()) <= {"a", "b", "\n"} and "%" not in text
+
+
+def test_ramp_preset(tmp_path, image):
+    text = _run_txt(tmp_path, image, "--ramp-preset", "blocks")
+    assert set(text.strip()) <= set(" ░▒▓█\n") and "%" not in text
+
+
+def test_ramp_and_preset_are_exclusive(tmp_path, image):
+    with pytest.raises(SystemExit) as exc:
+        _run_txt(tmp_path, image, "--ramp", "ab", "--ramp-preset", "blocks")
+    assert exc.value.code == 2
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        ["--ramp", ""],
+        ["--char-aspect", "0"],
+        ["--char-aspect", "nan"],
+        ["--char-aspect", "inf"],
+    ],
+)
+def test_invalid_ramp_or_aspect(tmp_path, image, capsys, extra):
+    with pytest.raises(SystemExit) as exc:
+        _run_txt(tmp_path, image, *extra)
+    assert exc.value.code == 1
+    assert "error:" in capsys.readouterr().err
+
+
+def test_single_char_ramp_works(tmp_path, image):
+    text = _run_txt(tmp_path, image, "--ramp", "#")
+    assert set(text) <= {"#", " ", "\n"}
+    assert "#" in text
+
+
+def test_char_aspect_changes_height(tmp_path, image):
+    default = _run_txt(tmp_path, image).splitlines()
+    tall = _run_txt(tmp_path, image, "--char-aspect", "1.0").splitlines()
+    assert len(tall) > len(default)

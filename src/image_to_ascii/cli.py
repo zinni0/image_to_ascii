@@ -7,7 +7,14 @@ from pathlib import Path
 from PIL import Image, UnidentifiedImageError
 
 from image_to_ascii import AsciiConverter, ConversionOptions
-from image_to_ascii.models import DEFAULT_BACKGROUND_THRESHOLD, DEFAULT_WIDTH, MAX_WIDTH
+from image_to_ascii.models import (
+    DEFAULT_BACKGROUND_THRESHOLD,
+    DEFAULT_CHAR_ASPECT,
+    DEFAULT_RAMP,
+    DEFAULT_WIDTH,
+    MAX_WIDTH,
+    RAMP_PRESETS,
+)
 from image_to_ascii.renderers import REGISTRY, format_for_path, get_renderer
 
 DARK_BACKGROUND = "#0B0B0C"
@@ -39,6 +46,26 @@ def build_parser() -> argparse.ArgumentParser:
         type=width_arg,
         default=DEFAULT_WIDTH,
         help=f"width in chars (default: {DEFAULT_WIDTH})",
+    )
+    ramp = p.add_mutually_exclusive_group()
+    ramp.add_argument(
+        "--ramp",
+        default=None,
+        metavar="STR",
+        help="characters ordered sparse to dense, like the classic preset",
+    )
+    ramp.add_argument(
+        "--ramp-preset",
+        choices=sorted(RAMP_PRESETS),
+        default=None,
+        help="named character ramp (default: classic)",
+    )
+    p.add_argument(
+        "--char-aspect",
+        type=float,
+        default=DEFAULT_CHAR_ASPECT,
+        help="character cell width/height ratio used to scale the height "
+        f"(default: {DEFAULT_CHAR_ASPECT})",
     )
     p.add_argument(
         "--background-threshold",
@@ -92,11 +119,21 @@ def renderer_options(fmt: str, args: argparse.Namespace) -> dict:
     return {}
 
 
+def ramp_from_args(args: argparse.Namespace) -> str:
+    if args.ramp is not None:
+        return args.ramp
+    if args.ramp_preset is not None:
+        return RAMP_PRESETS[args.ramp_preset]
+    return DEFAULT_RAMP
+
+
 def run(args: argparse.Namespace) -> None:
     fmt = args.format or format_for_path(args.output)
     options = ConversionOptions(
         width=args.width,
         invert=not args.bright_is_dense,
+        ramp=ramp_from_args(args),
+        char_aspect=args.char_aspect,
         background_threshold=args.background_threshold,
         contrast=not args.no_autocontrast,
         gamma=args.gamma,
