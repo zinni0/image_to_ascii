@@ -90,7 +90,7 @@ class AsciiConverter:
         is_background: list[bool],
     ) -> list[Cell]:
         return [
-            Cell(" ", None) if hidden else self._cell(pixel[:3], value)
+            Cell(" ", None) if hidden else self._cell(pixel[:3], value, pixel[3])
             for pixel, value, hidden in zip(pixels, values, is_background, strict=True)
         ]
 
@@ -111,9 +111,9 @@ class AsciiConverter:
         low, high = _stretch_range(foreground) if self.options.contrast else (0.0, 1.0)
         return [stretch_luminance(v, low, high, self.options.gamma) for v in values]
 
-    def _cell(self, color: Color, value: float) -> Cell:
+    def _cell(self, color: Color, value: float, alpha: int) -> Cell:
         if self.options.invert:
             value = 1.0 - value
         last = len(self.options.ramp) - 1
         index = min(last, max(0, round(value * last)))
-        return Cell(self.options.ramp[index], color)
+        return Cell(self.options.ramp[index], color, round(alpha / 255, 2))

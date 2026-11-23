@@ -65,3 +65,10 @@ def test_schema_id_points_to_release_asset():
         "https://github.com/zinni0/image_to_ascii/releases/latest/download/"
         f"{SCHEMA_PATH.name}"
     )
+
+
+def test_semi_transparent_run_emits_alpha(validator):
+    grid = [[Cell("a", (1, 2, 3), 0.5), Cell("b", (1, 2, 3)), Cell(" ", None)]]
+    document = render(grid)
+    validator.validate(document)
+    assert document["rows"] == [[["a", "#010203", 0.5], ["b", "#010203"], [" ", None]]]

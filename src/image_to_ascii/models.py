@@ -24,6 +24,7 @@ class Cell:
 
     char: str
     color: Color | None
+    alpha: float = 1.0
 
 
 CellGrid = list[list[Cell]]

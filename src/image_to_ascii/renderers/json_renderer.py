@@ -14,7 +14,8 @@ def _run_json(run: Run) -> list:
     if run.color is None:
         return [run.text, None]
     red, green, blue = run.color
-    return [run.text, f"#{red:02x}{green:02x}{blue:02x}"]
+    entry = [run.text, f"#{red:02x}{green:02x}{blue:02x}"]
+    return entry if run.alpha >= 1 else [*entry, run.alpha]
 
 
 def generator_name() -> str:
@@ -33,6 +34,9 @@ class JsonRenderer(Renderer):
             "width": max((len(line) for line in grid), default=0),
             "height": len(grid),
             "generator": generator_name(),
-            "rows": [[_run_json(run) for run in group_runs(line)] for line in grid],
+            "rows": [
+                [_run_json(run) for run in group_runs(line, with_alpha=True)]
+                for line in grid
+            ],
         }
         return json.dumps(document, ensure_ascii=False, separators=(",", ":"))
