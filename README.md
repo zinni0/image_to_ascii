@@ -19,7 +19,7 @@ The format follows the `-o` extension (`.svg`, `.html`, `.json`, else text) unle
 `--format json` writes a document that validates against [`schema/ascii-art.v1.schema.json`](schema/ascii-art.v1.schema.json):
 
 ```json
-{"schemaVersion":1,"width":3,"height":1,"generator":"image-to-ascii 0.2.0","rows":[[["aa","#ff000a"],[" ",null]]]}
+{"schemaVersion":1,"width":3,"height":1,"generator":"image-to-ascii 0.3.0","rows":[[["aa","#ff000a"],[" ",null]]]}
 ```
 
 Each row is a list of runs `[text, "#rrggbb" | null, alpha?]`. `null` means uncolored (spaces). `alpha` (0..1) is optional and only emitted for colored runs that are not fully opaque.

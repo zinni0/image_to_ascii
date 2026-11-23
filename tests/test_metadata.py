@@ -23,6 +23,13 @@ def test_description_is_not_placeholder():
     assert "Add your description here" not in description
 
 
+def test_readme_json_example_version_matches_project():
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    match = re.search(r'"generator":"image-to-ascii ([^"]+)"', readme)
+    assert match
+    assert match.group(1) == _project()["version"]
+
+
 def test_ci_workflow_runs_lint_format_and_tests():
     ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     for command in (
