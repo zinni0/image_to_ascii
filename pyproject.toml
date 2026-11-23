@@ -1,7 +1,7 @@
 [project]
 name = "image-to-ascii"
 version = "0.2.0"
-description = "Add your description here"
+description = "Generate static colored ASCII-art assets (SVG, HTML, JSON, text) from images for websites."
 license = "MIT"
 license-files = ["LICENSE"]
 readme = "README.md"

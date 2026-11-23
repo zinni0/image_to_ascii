@@ -14,3 +14,9 @@ def test_license_declared_and_file_exists():
     assert project["license"] == "MIT"
     assert project["license-files"] == ["LICENSE"]
     assert (ROOT / "LICENSE").read_text(encoding="utf-8").startswith("MIT License")
+
+
+def test_description_is_not_placeholder():
+    description = _project()["description"]
+    assert description
+    assert "Add your description here" not in description
