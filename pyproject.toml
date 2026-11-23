@@ -2,6 +2,8 @@
 name = "image-to-ascii"
 version = "0.2.0"
 description = "Add your description here"
+license = "MIT"
+license-files = ["LICENSE"]
 readme = "README.md"
 authors = [
     { name = "zinni0", email = "142218244+zinni0@users.noreply.github.com" }
